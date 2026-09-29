@@ -1,0 +1,14 @@
+The 20th invoice from the same vendor had the same broken GSTIN as the first 19. My agent cleared it in under a second. The 1st took a human 20 minutes.
+
+The difference wasn't a better prompt. It was Hindsight memory.
+
+- No history: "hold for manual review", confidence 0.35
+- With history: vendor fix + 4 cited priors, confidence 0.75, auto-resolve
+- Hard lesson: never retain your own "seen 8x" strings — mine snowballed to 128x once
+- Boring recall queries win: vendor ID + exception codes beats clever prose
+- A dead memory server should degrade your demo, never kill it — label the mode
+
+Full write-up with code: [ARTICLE URL HERE as first comment, repo link in post body]
+
+#AIAgents #AI #Hindsight #AgentMemory #LLM
+(Under 800 chars. No hackathon mention. After posting: comment 1 = article URL, comment 2 = https://github.com/vectorize-io/hindsight )

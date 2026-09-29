@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Vendor Payment Memory Agent</title>
+<style>
+:root{--radius:14px;--font:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+[data-theme="light"]{--bg:#f4f6fb;--panel:#ffffff;--panel2:#eef1f7;--ink:#16213a;--muted:#5b6b8c;--line:#dfe5f0;--accent:#2f6bff;--accent-ink:#fff;--good:#12805c;--warn:#b45309;--bad:#c24141;--chip:#e8edf6}
+[data-theme="dark"]{--bg:#0e1320;--panel:#182033;--panel2:#0b0f1a;--ink:#e9edf6;--muted:#9db0cf;--line:#2a3a58;--accent:#5b8cff;--accent-ink:#0b1020;--good:#3ecf8e;--warn:#f5b14c;--bad:#f07272;--chip:#22304d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 48px}
+header.top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:6px 0 4px}
+h1{font-size:clamp(22px,3.4vw,32px);margin:0;letter-spacing:-.02em}
+.sub{color:var(--muted);font-size:14px;margin:6px 0 0;max-width:70ch}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.badge b{color:var(--ink)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--good)}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:10px 16px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600}
+.btn:hover{filter:brightness(1.07)}
+.btn.primary{background:var(--accent);border-color:transparent;color:var(--accent-ink)}
+.btn:disabled{opacity:.55;cursor:wait}
+.btn.ghost{background:transparent}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin:14px 0;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.card h3{margin:0 0 12px;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:860px){.formgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.formgrid{grid-template-columns:1fr}}
+label.f{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:600}
+input,select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:14px;font-family:inherit}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
+.vendor-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:10px 0 2px}
+.vendor-meta b{color:var(--ink)}
+.actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.action-pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12.5px;font-weight:700}
+.a-APPROVE{background:rgba(18,128,92,.15);color:var(--good)}
+.a-AUTO_RESOLVE{background:rgba(47,107,255,.15);color:var(--accent)}
+.a-ROUTE_APPROVER{background:rgba(180,83,9,.15);color:var(--warn)}
+.a-MANUAL_REVIEW{background:var(--chip);color:var(--muted)}
+.a-BLOCK{background:rgba(194,65,65,.15);color:var(--bad)}
+.confbar{height:8px;border-radius:99px;background:var(--chip);margin:10px 0 4px;overflow:hidden}
+.confbar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+.exchips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.exchip{font-size:12px;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--muted)}
+.evchips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.evchip{font-size:12px;padding:3px 10px;border-radius:999px;background:rgba(47,107,255,.12);color:var(--accent);font-weight:600}
+.sugg{font-size:14.5px;line-height:1.55;margin:8px 0}
+.fine{font-size:12.5px;color:var(--muted)}
+details.raw{margin-top:10px}
+details.raw summary{cursor:pointer;font-size:12.5px;color:var(--muted)}
+pre{background:var(--panel2);border:1px solid var(--line);padding:12px;border-radius:10px;overflow:auto;font-size:12px;max-height:260px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:860px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.stat .n{font-size:clamp(20px,3vw,28px);font-weight:800;letter-spacing:-.02em}
+.stat .l{font-size:12px;color:var(--muted);margin-top:2px}
+.empty{color:var(--muted);font-size:14px;border:1px dashed var(--line);border-radius:10px;padding:18px;text-align:center}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--bad);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;max-width:min(92vw,560px);z-index:50}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:sp 0.7s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+footer{margin-top:26px;font-size:12.5px;color:var(--muted)}
+footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Vendor Payment Memory Agent</h1>
+      <p class="sub">Left: what an invoice looks like with no history. Right: the same invoice after Hindsight recalls this vendor's past. Memory mode: <span class="badge"><span class="dot"></span><b id="mode">…</b></span></p>
+    </div>
+    <div class="toolbar">
+      <button class="btn ghost" id="themeBtn" title="Toggle light / dark">◐ Theme</button>
+    </div>
+  </header>
+
+  <div class="card">
+    <h3>Invoice</h3>
+    <div class="formgrid">
+      <div><label class="f" for="vendor">Vendor</label><select id="vendor"></select></div>
+      <div><label class="f" for="inv">Invoice no</label><input id="inv" value="INV-V001-DEMO20"/></div>
+      <div><label class="f" for="gstin">GSTIN</label><input id="gstin" value="36XXXXK4821P1Z6"/></div>
+      <div><label class="f" for="hsn">HSN</label><input id="hsn" value="1006"/></div>
+      <div><label class="f" for="po">PO number</label><input id="po" value="PO-1001"/></div>
+      <div><label class="f" for="amt">Amount (₹)</label><input id="amt" value="95000" inputmode="decimal"/></div>
+    </div>
+    <div class="vendor-meta" id="vmeta"></div>
+    <div class="actions">
+      <button class="btn primary" id="scoreBtn" onclick="score()">Score both ways</button>
+      <button class="btn" onclick="newInvNo()">New invoice no</button>
+      <button class="btn" id="seedBtn" onclick="seed()">Seed 200 memories</button>
+      <button class="btn" id="statsBtn" onclick="stats()">Refresh stats</button>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card" id="cardWo"><h3>Without memory · generic</h3><div class="empty">Score an invoice to compare.</div></div>
+    <div class="card" id="cardWi"><h3>With memory · Hindsight</h3><div class="empty">Score an invoice to compare.</div></div>
+  </div>
+
+  <h3 style="color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:18px 0 0">Session stats</h3>
+  <div class="stats" id="statsRow" style="margin-top:10px">
+    <div class="stat"><div class="n" id="stScored">–</div><div class="l">invoices scored</div></div>
+    <div class="stat"><div class="n" id="stStp">–</div><div class="l">straight-through with memory</div></div>
+    <div class="stat"><div class="n" id="stWith">–</div><div class="l">avg confidence · with memory</div></div>
+    <div class="stat"><div class="n" id="stWithout">–</div><div class="l">avg confidence · without</div></div>
+  </div>
+
+  <footer>Hindsight memory bank <b id="bank">…</b> · <a href="https://github.com/vectorize-io/hindsight">GitHub</a> · <a href="https://hindsight.vectorize.io/">Docs</a> · <a href="https://vectorize.io/what-is-agent-memory">What is agent memory</a></footer>
+</div>
+<div id="toast" role="alert"></div>
+
+<script>
+let VENDORS=[];
+const $=id=>document.getElementById(id);
+const inr=n=>{try{return '₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:2})}catch(e){return '₹'+n}};
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),4200);}
+function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('vma-theme',t)}catch(e){}}
+setTheme((()=>{try{return localStorage.getItem('vma-theme')||(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}catch(e){return 'dark'}})());
+$('themeBtn').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+async function api(p,m,b){let r;try{r=await fetch(p,{method:m||'GET',headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined})}catch(e){throw new Error('Server unreachable. Is uvicorn running on 8902?');}if(!r.ok){let msg=r.statusText;try{const j=await r.json();if(j.error)msg=j.error;else if(j.detail)msg=JSON.stringify(j.detail).slice(0,220)}catch(e){}throw new Error(msg);}return r.json();}
+function fillVendor(){const v=VENDORS.find(z=>z.vendor_id===$('vendor').value);if(!v)return;$('gstin').value=v.gstin;$('hsn').value=v.hsn_default;$('vmeta').innerHTML=`<span>Terms <b>${v.terms}</b></span><span>Approver <b>${v.approver}</b></span><span>${v.city}</span>`;}
+function newInvNo(){const v=$('vendor').value;const n=Math.floor(100+Math.random()*899);$('inv').value=`INV-${v}-${Date.now().toString().slice(-6)}${n}`;}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function card(r,accent){
+  const pct=Math.round((r.confidence||0)*100);
+  const ex=(r.exceptions||[]).map(e=>`<span class="exchip">${esc(e.code)}</span>`).join('')||'<span class="fine">No exceptions — clean.</span>';
+  const ev=(r.evidence||[]).filter(e=>e.prior_cases>0).map(e=>`<span class="evchip">${e.prior_cases} prior ${esc(e.code)}</span>`).join('');
+  return `<div><span class="action-pill a-${esc(r.action||'MANUAL_REVIEW')}">${esc((r.action||'').replace(/_/g,' '))}</span></div>
+  <div class="confbar"><i style="width:${pct}%"></i></div>
+  <div class="fine">confidence ${pct}%${r.recall_mode?` · recall: ${esc(r.recall_mode)}`:''}</div>
+  <div class="exchips">${ex}</div>${ev?`<div class="evchips">${ev}</div>`:''}
+  <p class="sugg">${esc(r.suggestion||'')}</p>
+  <details class="raw"><summary>Raw JSON</summary><pre>${esc(JSON.stringify(r,null,2))}</pre></details>`;
+}
+async function busy(btn,fn){btn.disabled=true;const o=btn.innerHTML;btn.innerHTML='<span class="spin"></span> Working…';try{await fn()}catch(e){toast(e.message)}finally{btn.disabled=false;btn.innerHTML=o;}}
+async function score(){
+  const amt=parseFloat($('amt').value);
+  if(!isFinite(amt)||amt<0){toast('Amount must be a number ≥ 0.');return;}
+  if(!$('inv').value.trim()){toast('Invoice no must not be empty.');return;}
+  await busy($('scoreBtn'),async()=>{
+    const body={invoice_no:$('inv').value.trim(),vendor_id:$('vendor').value,gstin:$('gstin').value.trim(),hsn:$('hsn').value.trim(),po_number:$('po').value.trim()||'PO-UNKNOWN',amount:amt,tax_rate:0.12,tax_amount:Math.round(amt*0.12*100)/100,approver:'R. Sharma'};
+    const r=await api('/api/score','POST',body);
+    $('cardWo').innerHTML='<h3>Without memory · generic</h3>'+card(r.without_memory);
+    $('cardWi').innerHTML='<h3>With memory · Hindsight</h3>'+card(r.with_memory,true);
+    $('mode').textContent=r.memory.mode+' / '+r.memory.bank_id;
+    await api('/api/feedback','POST',{invoice_no:body.invoice_no,vendor_id:body.vendor_id,resolution:r.with_memory.suggestion,action:r.with_memory.action,amount:body.amount,approver:'R. Sharma'});
+    stats(true);
+  });
+}
+async function seed(){await busy($('seedBtn'),async()=>{const r=await api('/api/seed','POST');toast(`Seeded ${r.seeded} memories (${r.memory.mode}).`);stats(true);});}
+async function stats(quiet){try{const r=await api('/api/stats');$('stScored').textContent=r.scored;$('stStp').textContent=Math.round(r.straight_through_with_memory*100)+'%';$('stWith').textContent=r.avg_confidence_with.toFixed(2);$('stWithout').textContent=r.avg_confidence_without.toFixed(2);}catch(e){if(!quiet)toast(e.message);}}
+(async function init(){
+  try{
+    const h=await api('/api/health');
+    $('mode').textContent=h.memory.mode+' / '+h.memory.bank_id;$('bank').textContent=h.memory.bank_id;
+    const v=await api('/api/vendors');VENDORS=v.vendors;
+    const s=$('vendor');VENDORS.forEach(x=>{const o=document.createElement('option');o.value=x.vendor_id;o.textContent=`${x.vendor_id} — ${x.name}`;s.appendChild(o);});
+    s.value='V001';s.onchange=fillVendor;fillVendor();stats(true);
+  }catch(e){toast(e.message);$('mode').textContent='offline';}
+})();
+</script>
+</body>
+</html>
